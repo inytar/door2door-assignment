@@ -1,0 +1,53 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Map</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <meta name="description" content="Map">
+  <meta name="author" content="inytar">
+
+  <script src='https://api.mapbox.com/mapbox-gl-js/v0.34.0/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v0.34.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        //html {min-height: 100%; }
+        body { margin:0; padding:0; height: 100%; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+
+<body>
+  <div id='map'></div>
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiaW55dGFyIiwiYSI6ImNqMHEwODkxNjAweDYyd3IyMTJrZGtqNGIifQ.uE_k8sFLb5oYPJFkuImX3w';
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/light-v9',
+      // TODO Set center and zoom from dataset bounding box.
+      center: [39.2853372, -6.8200926],
+      zoom: 13,
+    });
+
+map.on('load', function() {
+
+  map.addLayer({
+    'id': 'activity',
+    'type': 'circle',
+    'source': {
+      'type': 'geojson',
+      // TODO Make data url relative.
+      'data': 'file:///home/inytar/Projects/door2door_assignment/activity_points.geojson'
+    },
+    'paint': {
+      // TODO Make circle -radius depend on zoom.
+      'circle-radius': 8,
+      'circle-color': '#000000'
+    }
+  })
+})
+</script>
+
+</body>
+</html>
