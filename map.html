@@ -32,20 +32,33 @@
 
 map.on('load', function() {
 
-  map.addLayer({
-    'id': 'activity',
-    'type': 'circle',
-    'source': {
+  map.addSource('activities', {
       'type': 'geojson',
       // TODO Make data url relative.
       'data': 'file:///home/inytar/Projects/door2door_assignment/activity_points.geojson'
-    },
+  });
+
+  map.addLayer({
+    'id': 'activity-circle',
+    'type': 'circle',
+    'source': 'activities',
     'paint': {
       // TODO Make circle -radius depend on zoom.
-      'circle-radius': 8,
-      'circle-color': '#000000'
+      'circle-radius': 11,
+      'circle-color': '#FFFFFF',
+      'circle-stroke-width': 1
+    },
+  });
+
+  map.addLayer({
+    'id': 'activity-label',
+    'type': 'symbol',
+    'source': 'activities',
+    'layout': {
+      'text-field': '{id}',
+      'text-size': 10
     }
-  })
+  });
 })
 </script>
 
