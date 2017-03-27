@@ -1,17 +1,16 @@
 import os
 
 from more.chameleon import ChameleonApp
-import morepath
 
 from webob.static import DirectoryApp
 
-from .model import Analysis
+from .import model
 
 
 class App(ChameleonApp):
 
     def __init__(self):
-        Analysis.load_data()
+        model.Data.load_data()
 
     static_path = 'static'
 

@@ -2,15 +2,15 @@ from .app import App
 from . import model
 
 
-@App.html(model=model.Map, template='map.pt')
+@App.html(model=model.Data, template='map.pt')
 def view_map(self, request):
     return {
-        'bounding_box': []
+        'bounds': self.bounds
     }
 
 
 # TODO Should work on post, so we can easily send a html form.
-@App.json(model=model.Analysis)
+@App.json(model=model.Data, name='data')
 def view_analysis(self, request):
     self.analyse(**request.params)
     return {

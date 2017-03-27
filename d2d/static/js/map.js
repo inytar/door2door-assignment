@@ -1,17 +1,23 @@
 mapboxgl.accessToken = 'pk.eyJ1IjoiaW55dGFyIiwiYSI6ImNqMHEwODkxNjAweDYyd3IyMTJrZGtqNGIifQ.uE_k8sFLb5oYPJFkuImX3w';
 
 function loadMap() {
+  container = document.getElementById('map')
+  // Get data bounds and format.
+  bounds = container.dataset.bounds.split(',')
+  bounds = [bounds.slice(0,2), bounds.slice(2,4)]
+
   var map = new mapboxgl.Map({
-    container: 'map',
+    container: container,
     style: 'mapbox://styles/mapbox/light-v9',
-    // TODO Set center and zoom from dataset bounding box.
-    center: [39.2853372, -6.8200926],
-    zoom: 13,
+    // // TODO Set center and zoom from dataset bounding box.
+    // center: [39.2853372, -6.8200926],
+    // zoom: 13,
   });
 
   map.on('load', function() {
 
-  //   // TODO set binding box from html values.
+    // Fit to bounds of data.
+    map.fitBounds(bounds);
 
     map.addSource('original-activities', {
       'type': 'geojson',
