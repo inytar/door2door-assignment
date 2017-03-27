@@ -1,3 +1,4 @@
-jupyter
-notebook
 geopandas
+morepath
+pbr
+more.chameleon
