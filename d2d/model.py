@@ -64,23 +64,36 @@ class Data(object):
             self.points[self.time_column]
         ).shift(shift, freq='T').to_period(freq='{}T'.format(duration))
 
-    def points_near_time(self, row, *, data=None):
+    def points_near_time(self, period, *, data=None):
         if data is None:
             data = self.points
-        period = row.period
         return data[(period.start_time <= data[self.time_column]) &
                     (data[self.time_column] <= period.end_time)]
 
-    def points_near_space(self, row, *, decimal=2, data=None):
+    def points_near_space(self, geometry, *, decimal=2, data=None):
         if data is None:
             data = self.points
-        return data[data.geom_almost_equals(row.geometry, decimal=decimal)]
+        return data[data.geom_almost_equals(geometry, decimal=decimal)]
 
     def distance_to_route(self):
         result = pd.Series(np.nan, index=self.points.index)
         for row in self.routes.itertuples():
             series = self.points.distance(row.geometry)
             result.update(series[result.isnull() | (series < result)])
+        return result
+
+    def count_points_near_space_time(self, *, time_shift=1, time_duration=30,
+                                     space_decimal=2):
+        # Create dataframe with period and geometry.
+        period = self.period(shift=time_shift, duration=time_duration)
+        data = gpd.GeoDataFrame({'period': period,
+                                 'geometry': self.data.geometry})
+        result = pd.Series(0, index=self.points.index)
+        for row in data.itertuples():
+            points_time = self.points_near_time(row.period)
+            result[row.id] = len(self.points_near_space(row.geometry,
+                                                        decimal=space_decimal,
+                                                        data=points_time))
         return result
 
     def analyse(self, **kwargs):
