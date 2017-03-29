@@ -96,5 +96,22 @@ class Data(object):
                                                         data=points_time))
         return result
 
+    def json_parsable(self, *, data=None):
+        if data is None:
+            data = self.data
+        geo = {'type': 'FeatureCollection',
+               'crs': {'type': 'name',
+                       'properties': {'name': data.crs['init']}},
+               'features': []}
+        for feature in data.iterfeatures():
+            props = {}
+            for name, value in feature['properties'].items():
+                if isinstance(value, np.datetime64, pd.Period):
+                    value = str(value)
+                props['name'] = value
+            feature['properties'] = props
+            geo['features'].append(feature)
+        return geo
+
     def analyse(self, **kwargs):
         pass
