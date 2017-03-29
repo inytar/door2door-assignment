@@ -12,7 +12,7 @@ class Data(object):
 
     _points = None
     _routes = None
-    time_column = 'dt_created_at'
+    time_column = 'created_at'
 
     def __init__(self):
         self.log = logging.getLogger(__name__)
@@ -33,8 +33,8 @@ class Data(object):
             )
         )
         data.set_index('id', inplace=True, drop=False)
-        data['dt_timestamp'] = pd.to_datetime(data.timestamp)
-        data['dt_created_at'] = pd.to_datetime(data.created_at)
+        data.timestamp = pd.to_datetime(data.timestamp)
+        data.created_at = pd.to_datetime(data.created_at)
         log.debug('Total points %s', len(data))
         log.debug('Points crs: %s', data.crs)
         log.debug('Points dtypes:\n%s', data.dtypes)
@@ -67,7 +67,7 @@ class Data(object):
     def points_near_time(self, row, *, data=None):
         if data is None:
             data = self.points
-        period = row.dt_period
+        period = row.period
         return data[(period.start_time <= data[self.time_column]) &
                     (data[self.time_column] <= period.end_time)]
 
