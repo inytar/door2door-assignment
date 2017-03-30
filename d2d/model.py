@@ -96,13 +96,14 @@ class Data(object):
                                                         data=points_time))
         return result
 
-    def json_parsable(self, *, data=None):
-        if data is None:
-            data = self.data
+    @staticmethod
+    def json_parsable(data):
         geo = {'type': 'FeatureCollection',
                'crs': {'type': 'name',
                        'properties': {'name': data.crs['init']}},
                'features': []}
+        # loop through all properties, and make sure datetime like objects
+        # are converted to strings.
         for feature in data.iterfeatures():
             props = {}
             for name, value in feature['properties'].items():

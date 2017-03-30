@@ -12,7 +12,5 @@ def view_map(self, request):
 # TODO Should work on post, so we can easily send a html form.
 @App.json(model=model.Data, name='data')
 def view_analysis(self, request):
-    self.analyse(**request.params)
-    return {
-        'greeting': 'hello '
-    }
+    result = self.analyse(**request.params)
+    return model.Data.json_parsable(result)
