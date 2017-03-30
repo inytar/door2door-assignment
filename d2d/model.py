@@ -113,5 +113,32 @@ class Data(object):
             geo['features'].append(feature)
         return geo
 
-    def analyse(self, **kwargs):
+    def normalize_speed(self):
+        # Get average speed of in_vehicle not 0
+        # make this 50 km/h.
+        # https://www.lonelyplanet.com/tanzania/dar-es-salaam/transportation/dar-rapid-transit/a/poi-tra/1498335/355642
+        # Recalculate all speeds.
         pass
+
+    def calc_probability(self):
+        probability = pd.Series(0, index=self.data.index)
+        # anything closer than 0.004 to route gets +100
+        probability += (self.distance_to_route() < 0.0004) * 100
+        # anything with 1 or more points close in time and space gets +50
+        probability += (self.count_points_near_space_time() > 1) * 50
+        # # anything with 2 or more points close in space gets +50
+        # anything with 'still' as current activity gets confidance * 10
+        probability += (self.data['current_dominating_activity'] ==
+                        'still') & \
+            (self.data['current_dominating_activity_confidence'] * 10)
+        # anything with not with 'still' as current act gets confidance * -5
+        probability += (self.data['current_dominating_activity'] !=
+                        'still') & \
+            (self.data['current_dominant_activity_confidence'] * -5)
+        # # anything with normalized speed > 5 km/h gets - 20
+        return probability
+
+    def analyse(self, **kwargs):
+        probability = self.calc_probability()
+        return gpd.GeoDataFrame({'probability': probability,
+                                 'geometry': self.data.geometry})
