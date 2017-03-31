@@ -17,7 +17,7 @@
 
 <body>
   <div id="map" data-bounds="${','.join(str(i) for i in bounds)}"></div>
-  <script type="text/javascript">window.onload = loadMap</script>
+  <script type="text/javascript">window.onload = loadPage</script>
 
 </body>
 </html>

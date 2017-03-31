@@ -18,56 +18,118 @@ function loadMap() {
 
     // Fit to bounds of data.
     map.fitBounds(bounds);
+  });
+  return map;
+}
 
-    map.addSource('original-activities', {
+function loadRoutes(map) {
+  console.log('loading routes');
+  map.addLayer({
+    'id': 'bus-routes',
+    'type': 'line',
+    'source': {
       'type': 'geojson',
-      // TODO Make data url relative.
-      'data': '/static/data/activity_points.geojson'
+      'data': '/static/data/routes.geojson'
+    },
+    'layout': {
+      'line-join': 'round',
+      'line-cap': 'round',
+    },
+    'paint': {
+      'line-color': '#FFF000',
+      'line-width': 1.5,
+    },
+  })
+  return 'bus-routes';
+}
+
+function loadOriginal(map) {
+
+  console.log('loading original points');
+  map.addSource('original-activities', {
+    'type': 'geojson',
+    'data': '/static/data/activity_points.geojson'
+  });
+
+  map.addLayer({
+    'id': 'original-activity',
+    'type': 'circle',
+    'source': 'original-activities',
+    'layout': {
+      'visibility': 'none',
+    },
+    'paint': {
+      'circle-color': '#000000',
+    }
+  });
+  return 'original-activity';
+}
+
+function loadBusStops(map) {
+
+  console.log('loading bus stops')
+  map.addSource('bus-stops', {
+      'type': 'geojson',
+      'data': '/data'
     });
 
     map.addLayer({
-      'id': 'bus-routes',
-      'type': 'line',
-      'source': {
-        'type': 'geojson',
-        'data': '/static/data/routes.geojson'
+      'id': 'bus-stops',
+      'type': 'circle',
+      'source': 'bus-stops',
+      'paint': {
+        'circle-color': {
+          'property': 'probability',
+          'stops': [
+            [30, '#FFFFFF'],
+            [40, '#00FFFF'],
+            [50, '#C0C0C0'],
+            [75, '#00FF00'],
+            [100, '#008000'],
+          ],
+        },
       },
       'layout': {
-        'line-join': 'round',
-        'line-cap': 'round',
-      },
-      'paint': {
-        'line-color': '#FFF000',
-        'line-width': 1.5,
-      },
-    })
+        'visibility': 'none',
+        // 'icon-image': 'star-15',
 
-    map.addLayer({
-      'id': 'original-activity-circle',
-      'type': 'circle',
-      'source': 'original-activities',
-      'paint': {
-        // TODO Make circle-radius depend on zoom.
-        'circle-radius': 11,
-        'circle-color': '#FFFFFF',
-        'circle-stroke-width': 1
       },
-      // 'filter':
+      'filter':
       // ['all',
+        ['>', 'probability', 33],
       //   ['<=', 'distance_to_route', 0.001],
       //   ['>=', 'near_points_count', 1],
       // ],
     });
+  return 'bus-stops';
+}
 
-    map.addLayer({
-      'id': 'original-activity-label',
-      'type': 'symbol',
-      'source': 'original-activities',
-      'layout': {
-        'text-field': '{id}',
-        'text-size': 10
-      }
-    });
-  })
-  return map;
+function toggleLayer(map, layer){
+  console.log('toggling layer', layer);
+  var visibility = map.getLayoutProperty(layer, 'visibility');
+  if (visibility === 'visible') {
+    map.setLayoutProperty(layer, 'visibility', 'none');
+  } else {
+    map.setLayoutProperty(layer, 'visibility', 'visible');
+  };
+  return layer;
+}
+
+function reloadBusStops(map) {
+  // Reload Bus Stop data.
+  map.getSource('bus-stops').setData('/data')
+  return 'bus-stops';
+}
+
+function loadPage() {
+  console.log('loading page');
+  var map = loadMap();
+  map.on('load', function() {
+
+    loadRoutes(map);
+    var allPoints = loadOriginal(map);
+    var busStops = loadBusStops(map);
+    toggleLayer(map, allPoints);
+    toggleLayer(map, busStops);
+  });
 }
