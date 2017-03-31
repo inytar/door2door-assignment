@@ -60,7 +60,7 @@ class Data(object):
         cls._routes = cls.load_routes()
 
     def period(self, *, shift=1, duration=30):
-        return pd.DateTimeIndex(
+        return pd.DatetimeIndex(
             self.points[self.time_column]
         ).shift(shift, freq='T').to_period(freq='{}T'.format(duration))
 
@@ -87,7 +87,7 @@ class Data(object):
         # Create dataframe with period and geometry.
         period = self.period(shift=time_shift, duration=time_duration)
         data = gpd.GeoDataFrame({'period': period,
-                                 'geometry': self.data.geometry})
+                                 'geometry': self.points.geometry})
         result = pd.Series(0, index=self.points.index)
         for row in data.itertuples():
             points_time = self.points_near_time(row.period)
@@ -96,25 +96,26 @@ class Data(object):
                                                         data=points_time))
         return result
 
-    @staticmethod
-    def json_parsable(data):
+    @classmethod
+    def json_parsable(cls, data):
+        crs = data.crs or cls._points.crs
         geo = {'type': 'FeatureCollection',
                'crs': {'type': 'name',
-                       'properties': {'name': data.crs['init']}},
+                       'properties': {'name': crs['init']}},
                'features': []}
         # loop through all properties, and make sure datetime like objects
         # are converted to strings.
         for feature in data.iterfeatures():
             props = {}
             for name, value in feature['properties'].items():
-                if isinstance(value, np.datetime64, pd.Period):
+                if isinstance(value, (np.datetime64, pd.Period)):
                     value = str(value)
-                props['name'] = value
+                props[name] = value
             feature['properties'] = props
             geo['features'].append(feature)
         return geo
 
-    def normalize_speed(self):
+    def normalize_speeds(self):
         # Get average speed of in_vehicle not 0
         # make this 50 km/h.
         # https://www.lonelyplanet.com/tanzania/dar-es-salaam/transportation/dar-rapid-transit/a/poi-tra/1498335/355642
@@ -140,6 +141,6 @@ class Data(object):
         return probability
 
     def analyse(self, **kwargs):
-        probability = self.calc_probability()
+        probability = self.calc_probability(**kwargs)
         return gpd.GeoDataFrame({'probability': probability,
                                  'geometry': self.data.geometry})
