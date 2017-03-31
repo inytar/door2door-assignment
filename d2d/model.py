@@ -83,7 +83,7 @@ class Data(object):
         return result
 
     def count_points_near_space_time(self, *, time_shift=1, time_duration=30,
-                                     space_decimal=2):
+                                     space_distance=100):
         # Create dataframe with period and geometry.
         period = self.period(shift=time_shift, duration=time_duration)
         data = gpd.GeoDataFrame({'period': period,
@@ -91,9 +91,11 @@ class Data(object):
         result = pd.Series(0, index=self.points.index)
         for row in data.itertuples():
             points_time = self.points_near_time(row.period)
-            result[row.id] = len(self.points_near_space(row.geometry,
-                                                        decimal=space_decimal,
-                                                        data=points_time))
+            result[row.Index] = len(
+                self.points_near_space(row.geometry,
+                                       decimal=to_decimal(space_distance),
+                                       data=points_time)
+            )
         return result
 
     @classmethod
@@ -119,28 +121,73 @@ class Data(object):
         # Get average speed of in_vehicle not 0
         # make this 50 km/h.
         # https://www.lonelyplanet.com/tanzania/dar-es-salaam/transportation/dar-rapid-transit/a/poi-tra/1498335/355642
+        fifty = self.points[(self.points['current_dominating_activity'] ==
+                             'in_vehicle')]['speed']
+        fifty = fifty[fifty > 0].mean()
         # Recalculate all speeds.
-        pass
+        return self.points['speed'] / fifty * 50
 
-    def calc_probability(self):
-        probability = pd.Series(0, index=self.data.index)
-        # anything closer than 0.004 to route gets +100
-        probability += (self.distance_to_route() < 0.0004) * 100
-        # anything with 1 or more points close in time and space gets +50
-        probability += (self.count_points_near_space_time() > 1) * 50
-        # # anything with 2 or more points close in space gets +50
-        # anything with 'still' as current activity gets confidance * 10
-        probability += (self.data['current_dominating_activity'] ==
-                        'still') & \
-            (self.data['current_dominating_activity_confidence'] * 10)
-        # anything with not with 'still' as current act gets confidance * -5
-        probability += (self.data['current_dominating_activity'] !=
-                        'still') & \
-            (self.data['current_dominant_activity_confidence'] * -5)
-        # # anything with normalized speed > 5 km/h gets - 20
+    def calc_probability(self, distance, space_time, current_activity, speed):
+        # Create result series.
+        probability = pd.Series(0, index=self.points.index)
+
+        # Calculate distance points. Distances closer than
+        # distance['distance'] get distance['points']
+        probability += (self.distance_to_route() <
+                        to_degrees(distance['distance'])) * \
+            distance['points']
+
+        # Calculate space time closeness points. Anything with more than
+        # space_time['min_count'] points get space_time['points']
+        space_time_count = space_time.pop('min_count')
+        space_time_points = space_time.pop('points')
+        probability += (self.count_points_near_space_time(**space_time) >
+                        space_time_count) * space_time_points
+
+        # Calculate dominating activity points. Still get activity['still']
+        # points times confidence. Not still get -activity['other'] points
+        probability += (self.points['current_dominating_activity'] ==
+                        'still') * \
+            (self.points['current_dominating_activity_confidence'] *
+             current_activity['still_points'])
+        probability += (self.points['current_dominating_activity'] !=
+                        'still') * \
+            (self.points['current_dominating_activity_confidence'] * -1 *
+             current_activity['other_points'])
+
+        # Look at speed, speed is more than penalty_speed get
+        # -penalty_points. If speed is less than max_speed and accuracy is
+        # higher than 0 get speed_points.
+        speeds = self.normalize_speeds()
+        probability += (speeds >= speed['penalty_speed']) * -1 * \
+            speed['penalty_points']
+        probability += ((speeds <= speed['max_speed']) &
+                        (self.points['accuracy'] > 0)) * speed['speed_points']
+
+        # Min probability is 0.
+        probability[probability < 0] = 0
+        # Normalize probability
+        max_probability = distance['points'] + space_time_points + \
+            100 * current_activity['still'] + speed['speed_points']
+        probability = probability / max_probability * 100
+
         return probability
 
     def analyse(self, **kwargs):
         probability = self.calc_probability(**kwargs)
         return gpd.GeoDataFrame({'probability': probability,
-                                 'geometry': self.data.geometry})
+                                 'geometry': self.points.geometry})
+
+
+def to_degrees(meters):
+    """Estimate the distance in degrees from distance in meters.
+
+    To simplify this we assume that for our location and crs 1 degree
+    is 100 km.
+    """
+    return meters / 10**5
+
+
+def to_decimal(meters):
+    """Estimate the decimal place of degrees from distance in meters."""
+    return -1 * np.log10(to_degrees(meters))
