@@ -168,7 +168,7 @@ class Data(object):
         probability[probability < 0] = 0
         # Normalize probability
         max_probability = distance['points'] + space_time_points + \
-            100 * current_activity['still'] + speed['speed_points']
+            100 * current_activity['still_points'] + speed['speed_points']
         probability = probability / max_probability * 100
 
         return probability

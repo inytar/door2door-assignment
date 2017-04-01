@@ -17,6 +17,91 @@
 
 <body>
   <div id="map" data-bounds="${','.join(str(i) for i in bounds)}"></div>
+  <div id="overlay">
+    <nav id="toggleButtons">
+      <a id="toggleOriginal" href="#" class="active" data-layer="original-activity">Toggle original data</a>
+      <a id="toggleStops" href="#" class="active" data-layer="bus-stops">Toggle bus stops</a>
+    </nav>
+    <form id="dataForm" method="POST" enctype="application/json">
+      <fieldset id="distanceSet" class="">
+        <legend>Distance to route</legend>
+        <div class="input-control">
+          <label for="distance">Max distance to route in meters</label>
+          <input type="range" name="distance[distance]" id="distance" value=30 min=0 max=100 step=10 oninput="distanceResult.value = distance.valueAsNumber;"/>
+          <output for="distance" name="distanceResult">30</output>
+        </div>
+        <div class="input-control">
+          <label for="distancePoints">Points</label>
+          <input type="range" name="distance[points]" id="distancePoints" value=100 min=0 max=200 step=5 oninput="distancePointsResult.value = distancePoints.valueAsNumber;"/>
+          <output for="distancePoints" name="distancePointsResult">100</output>
+        </div>
+      </fieldset>
+      <fieldset id="timeSpaceSet" class="">
+        <legend>Locations near in time and space</legend>
+        <div class="input-control">
+          <label for="timeShift">Shifted in minutes by</label>
+          <input type="range" name="time_space[time_shift]" id="timeShift" value=1 min=0 max=10 oninput="timeShiftResult.value = timeShift.valueAsNumber;"/>
+          <output for="timeShift" name="timeShiftResult">1</output>
+        </div>
+        <div class="input-control">
+          <label for="timeDuration">Max minutes after location timestamp</label>
+          <input type="range" name="time_space[time_duration]" id="timeDuration" value=30 min=1 max=60 step=5 oninput="timeDurationResult.value = timeDuration.valueAsNumber;"/>
+          <output for="timeDuration" name="timeDurationResult">30</output>
+        </div>
+        <div class="input-control">
+          <label for="spaceDistance">Distance from location in meters</label>
+          <input type="range" name="time_space[space_distance]" id="spaceDistance" value=500 min=1 max=1000 step=10 oninput="spaceDistanceResult.value = spaceDistance.valueAsNumber;"/>
+          <output for="spaceDistance" name="spaceDistanceResult">500</output>
+        </div>
+        <div class="input-control">
+          <label for="minCount">Minimal locations count to get points</label>
+          <input type="range" name="time_space[min_count]" id="minCount" value=1 min=1 max=5 oninput="minCountResult.value = minCount.valueAsNumber;"/>
+          <output for="minCount" name="minCountResult">1</output>
+        </div>
+        <div class="input-control">
+          <label for="spaceTimePoints">Points for locations with enough locations in space time</label>
+          <input type="range" name="[space_time]points" id="spaceTimePoints" value=50 min=0 max=200 step=5 oninput="spaceTimePointsResult.value = spaceTimePoints.valueAsNumber;"/>
+          <output for="spaceTimePoints" name="spaceTimePointsResult">50</output>
+        </div>
+      </fieldset>
+      <fieldset id="currentActivitySet" class="">
+        <legend>Current activity for location</legend>
+        <div class="input-control">
+          <label for="stillPoints">Points for locations where activity is <code>still</code> (multiplied by activity accuracy).</label>
+          <input type="range" name="current_activity[still_points]" id="stillPoints" value=1 step=0.05 min=0 max=2 oninput="stillPointsResult.value = stillPoints.valueAsNumber;"/>
+          <output for="stillPoints" name="stillPointsResult">1</output>
+        </div>
+        <div class="input-control">
+          <label for="otherPoints">Penalty points for locations where activity is not <code>still</code> (multiplied by activity accuracy).</label>
+          <input type="range" name="current_activity[other_points]" id="otherPoints" value=0.5 step=0.05 min=0 max=2 oninput="otherPointsResult.value = otherPoints.valueAsNumber;"/>
+          <output for="otherPoints" name="otherPointsResult">0.5</output>
+        </div>
+      </fieldset>
+      <fieldset id="speedSet" class="">
+        <legend>Speed</legend>
+        <div class="input-control">
+          <label for="maxSpeed">Maximum speed to get points for</label>
+          <input type="range" name="speed[max_speed]" id="maxSpeed" value=1 min=0 max=9 oninput="maxSpeedResult.value = maxSpeed.valueAsNumber;"/>
+          <output for="maxSpeed" name="maxSpeedResult">1</output>
+        </div>
+        <div class="input-control">
+          <label for="speedPoints">Points for locations with speed lower than maximum</label>
+          <input type="range" name="speed[speed_points]" id="speedPoints" value=50 min=0 max=200 step=5 oninput="speedPointsResult.value = speedPoints.valueAsNumber;"/>
+          <output for="speedPoints" name="speedPointsResult">50</output>
+        </div>
+        <div class="input-control">
+          <label for="penaltySpeed">Minimum speed above which penalty points are given</label>
+          <input type="range" name="speed[penalty_speed]" id="penaltySpeed" value=10 min=1 max=25 oninput="penaltySpeedResult.value = penaltySpeed.valueAsNumber;"/>
+          <output for="penaltySpeed" name="penaltySpeedResult">10</output>
+        </div>
+        <div class="input-control">
+          <label for="penaltyPoints">Penalty points for speeds above penalty speed</label>
+          <input type="range" name="speed[penalty_points]" id="penaltyPoints" value=50 min=0 max=200 step=5 oninput="penaltyPointsResult.value = penaltyPoints.valueAsNumber;"/>
+          <output for="penaltyPoints" name="penaltyPointsResult">50</output>
+        </div>
+      </fieldset>
+    </form>
+  </div>
   <script type="text/javascript">window.onload = loadPage</script>
 
 </body>

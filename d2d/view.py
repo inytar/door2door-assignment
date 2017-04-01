@@ -15,8 +15,7 @@ def view_map(self, request):
 load_analyse_params = loader(AnalysisSchema)
 
 
-@App.json(model=model.Data, name='data',
-          load=load_analyse_params)
+@App.json(model=model.Data, request_method='POST', load=load_analyse_params)
 def view_analysis(self, request, analyse_params):
     result = self.analyse(**analyse_params)
     return model.Data.json_parsable(result)

@@ -18,6 +18,25 @@ body
   width: 100%;
 }
 
-#legend
+#overlay
 {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 33%;
+  z-index: 1;
+}
+
+nav a {
+  display: inline-block;
+  padding: 1rem;
+  text-decoration: none;
+  border: 1px solid;
+  text-align: center;
+  background-color: #FFFFFF;
+  color: #0000FF;
+}
+nav a.active {
+  background-color: #0000FF;
+  color: #FFFFFF;
 }

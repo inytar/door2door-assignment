@@ -56,7 +56,7 @@ function loadOriginal(map) {
     'type': 'circle',
     'source': 'original-activities',
     'layout': {
-      'visibility': 'none',
+      'visibility': 'visible',
     },
     'paint': {
       'circle-color': '#000000',
@@ -65,12 +65,33 @@ function loadOriginal(map) {
   return 'original-activity';
 }
 
-function loadBusStops(map) {
+function loadBusStopsData() {
+  var headers = new Headers({
+    'Content-Type': 'application/json', // Probably going to be form encoded.
+    'Accept': 'application/json',
+  });
+
+  var init = {
+    'method': 'POST',
+    'headers': headers,
+    'body': '{}',
+  }
+  var request = new Request(document.URL, init);
+  return fetch(request)
+    .then(function(response) {
+    if (response.ok) {
+      return response.json();
+    }
+    throw new Error('Could not load bus stop data.');
+    });
+}
+
+function loadBusStops(map, data) {
 
   console.log('loading bus stops')
   map.addSource('bus-stops', {
       'type': 'geojson',
-      'data': '/data'
+      'data': data,
     });
 
     map.addLayer({
@@ -82,15 +103,12 @@ function loadBusStops(map) {
           'property': 'probability',
           'stops': [
             [30, '#FFFFFF'],
-            [40, '#00FFFF'],
-            [50, '#C0C0C0'],
-            [75, '#00FF00'],
-            [100, '#008000'],
+            [95, '#00FF00'],
           ],
         },
       },
       'layout': {
-        'visibility': 'none',
+        'visibility': 'visible',
         // 'icon-image': 'star-15',
 
       },
@@ -104,20 +122,25 @@ function loadBusStops(map) {
   return 'bus-stops';
 }
 
-function toggleLayer(map, layer){
+function toggleLayer(map, button){
+  console.log(button);
+  var layer = button.dataset.layer
+  console.log(button.dataset)
   console.log('toggling layer', layer);
+  console.log(map)
   var visibility = map.getLayoutProperty(layer, 'visibility');
   if (visibility === 'visible') {
     map.setLayoutProperty(layer, 'visibility', 'none');
   } else {
     map.setLayoutProperty(layer, 'visibility', 'visible');
   };
+  button.classList.toggle('active');
   return layer;
 }
 
-function reloadBusStops(map) {
+function reloadBusStops(map, data) {
   // Reload Bus Stop data.
-  map.getSource('bus-stops').setData('/data')
+  map.getSource('bus-stops').setData(data)
   return 'bus-stops';
 }
 
@@ -128,8 +151,17 @@ function loadPage() {
 
     loadRoutes(map);
     var allPoints = loadOriginal(map);
-    var busStops = loadBusStops(map);
-    toggleLayer(map, allPoints);
-    toggleLayer(map, busStops);
+    document.getElementById('toggleOriginal').addEventListener('click', function(event) {
+      toggleLayer(map, event.target)
+    });
+    loadBusStopsData()
+      .then(function(data) {
+        var busStops = loadBusStops(map, data);
+        document.getElementById('toggleStops').addEventListener('click', function(event) {
+          toggleLayer(map, event.target)
+        });
+      }).catch(function(error) {
+        console.log('Unable to load bus stop data.');
+      });
   });
 }
