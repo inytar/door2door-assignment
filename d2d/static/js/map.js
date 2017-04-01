@@ -1,9 +1,11 @@
+'use strict';
+
 mapboxgl.accessToken = 'pk.eyJ1IjoiaW55dGFyIiwiYSI6ImNqMHEwODkxNjAweDYyd3IyMTJrZGtqNGIifQ.uE_k8sFLb5oYPJFkuImX3w';
 
 function loadMap() {
-  container = document.getElementById('map')
+  var container = document.getElementById('map')
   // Get data bounds and format.
-  bounds = container.dataset.bounds.split(',')
+  var bounds = container.dataset.bounds.split(',')
   bounds = [bounds.slice(0,2), bounds.slice(2,4)]
 
   var map = new mapboxgl.Map({
