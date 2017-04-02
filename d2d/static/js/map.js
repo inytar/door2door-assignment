@@ -68,6 +68,7 @@ function loadOriginal(map) {
 }
 
 function loadBusStopsData() {
+  console.log('loading bus stops data');
   var headers = new Headers({
     'Accept': 'application/json',
   });
@@ -147,6 +148,11 @@ function reloadBusStops(map, data) {
 function loadPage() {
   console.log('loading page');
   var map = loadMap();
+  document.getElementById('analysisForm').addEventListener('change', function() {
+    loadBusStopsData().then(function(newData) {
+      reloadBusStops(map, newData);
+    });
+  });
   map.on('load', function() {
 
     loadRoutes(map);
@@ -158,10 +164,12 @@ function loadPage() {
       .then(function(data) {
         var busStops = loadBusStops(map, data);
         document.getElementById('toggleStops').addEventListener('click', function(event) {
-          // TODO Only load data if we are activating the button.
-          loadBusStopsData().then(function(newData) {
-            reloadBusStops(map, newData);
-          });
+          // Only load data if we are activating the button.
+          if (!event.target.classList.contains('active')) {
+            loadBusStopsData().then(function(newData) {
+              reloadBusStops(map, newData);
+            });
+          }
           toggleLayer(map, event.target);
         });
       }).catch(function(error) {
