@@ -19,7 +19,7 @@
   <div id="map" data-bounds="${','.join(str(i) for i in bounds)}"></div>
   <div id="overlayL">
     <nav id="toggleButtons">
-      <a id="toggleOriginal" href="#" class="active" data-layer="original-activity">Toggle original data</a>
+      <a id="toggleOriginal" href="#" class="" data-layer="original-activity">Toggle original data</a>
       <a id="toggleStops" href="#" class="active" data-layer="bus-stops">Toggle bus stops</a>
     </nav>
     <div id="legend">

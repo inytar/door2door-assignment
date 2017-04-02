@@ -58,7 +58,7 @@ function loadOriginal(map) {
     'type': 'circle',
     'source': 'original-activities',
     'layout': {
-      'visibility': 'visible',
+      'visibility': 'none',
     },
     'paint': {
       'circle-color': '#000000',
