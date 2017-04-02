@@ -1,6 +1,5 @@
 geopandas
 morepath
-pbr
 more.chameleon
 marshmallow
 git+https://github.com/morepath/more.marshmallow

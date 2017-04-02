@@ -83,7 +83,7 @@ Create a virtual environment and activate it:
 
 Install app for development:
 
-    $ pip install -e .
+    $ pip install -r requirements.txt
     $ pip install -r dev_requirements.txt
 
 ## Running
