@@ -96,7 +96,7 @@
       <fieldset id="speedSet" class="">
         <legend>Speed</legend>
         <div class="input-control">
-          <label for="maxSpeed">Maximum speed to get points for</label>
+          <label for="maxSpeed">Maximum speed (in km/h) to get points for</label>
           <input type="range" name="speed[max_speed]" id="maxSpeed" value=1 min=0 max=9 oninput="maxSpeedResult.value = maxSpeed.valueAsNumber;"/>
           <output for="maxSpeed" name="maxSpeedResult">1</output>
         </div>
@@ -106,7 +106,7 @@
           <output for="speedPoints" name="speedPointsResult">50</output>
         </div>
         <div class="input-control">
-          <label for="penaltySpeed">Minimum speed above which penalty points are given</label>
+          <label for="penaltySpeed">Minimum speed (in km/h) above which penalty points are given</label>
           <input type="range" name="speed[penalty_speed]" id="penaltySpeed" value=10 min=1 max=25 oninput="penaltySpeedResult.value = penaltySpeed.valueAsNumber;"/>
           <output for="penaltySpeed" name="penaltySpeedResult">10</output>
         </div>
