@@ -99,3 +99,9 @@ The `Analysis.ipynb` can be opened using Jupyter:
     $ jupyter notebook Analysis.ipynb
 
 This file has my preliminary analysis of the data and should be seen as a notebook with simple tests, comments and both working and not working avenues of thought.
+
+## Testing
+
+To test the app run:
+
+    $ pytest
