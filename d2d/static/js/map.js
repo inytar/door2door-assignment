@@ -69,14 +69,15 @@ function loadOriginal(map) {
 
 function loadBusStopsData() {
   var headers = new Headers({
-    'Content-Type': 'application/json', // Probably going to be form encoded.
     'Accept': 'application/json',
   });
+
+  var form = new FormData(document.getElementById('analysisForm'));
 
   var init = {
     'method': 'POST',
     'headers': headers,
-    'body': '{}',
+    'body': form,
   }
   var request = new Request(document.URL, init);
   return fetch(request)
@@ -125,11 +126,8 @@ function loadBusStops(map, data) {
 }
 
 function toggleLayer(map, button){
-  console.log(button);
   var layer = button.dataset.layer
-  console.log(button.dataset)
   console.log('toggling layer', layer);
-  console.log(map)
   var visibility = map.getLayoutProperty(layer, 'visibility');
   if (visibility === 'visible') {
     map.setLayoutProperty(layer, 'visibility', 'none');
@@ -160,7 +158,11 @@ function loadPage() {
       .then(function(data) {
         var busStops = loadBusStops(map, data);
         document.getElementById('toggleStops').addEventListener('click', function(event) {
-          toggleLayer(map, event.target)
+          // TODO Only load data if we are activating the button.
+          loadBusStopsData().then(function(newData) {
+            reloadBusStops(map, newData);
+          });
+          toggleLayer(map, event.target);
         });
       }).catch(function(error) {
         console.log('Unable to load bus stop data.');
