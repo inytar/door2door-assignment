@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 name = 'd2d'
 
-version = '0.0.0'
+version = '0.1.0'
 
 setup(
     name=name,
@@ -14,6 +14,10 @@ setup(
     namespace_packages=name.split('.')[:-1],
     include_package_data=True,
     zip_safe=False,
+    platforms='any',
+    install_requires=[
+        'morepath',
+    ],
     entry_points=dict(
         console_scripts=[
             'run-app = d2d.__main__:run',
