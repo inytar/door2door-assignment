@@ -93,3 +93,9 @@ To run the app in the development environment execute the following:
     $ run-app
 
 The app will now be loaded under <http://127.0.0.1:5000>.
+
+The `Analysis.ipynb` can be opened using Jupyter:
+
+    $ jupyter notebook Analysis.ipynb
+
+This file has my preliminary analysis of the data and should be seen as a notebook with simple tests, comments and both working and not working avenues of thought.
