@@ -1,13 +1,14 @@
 import os
 
 from more.chameleon import ChameleonApp
+from more.marshmallow import MarshmallowApp
 
 from webob.static import DirectoryApp
 
 from .import model
 
 
-class App(ChameleonApp):
+class App(ChameleonApp, MarshmallowApp):
 
     def __init__(self):
         model.Data.load_data()
