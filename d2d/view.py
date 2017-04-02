@@ -37,7 +37,7 @@ def parse_params(params):
 
 def merge(data):
     if not data:
-        return None
+        return {}
     if len(data) == 1:
         return data[0]
     return merge_dicts(data[0], merge(data[1:]))
