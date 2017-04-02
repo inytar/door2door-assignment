@@ -4,7 +4,9 @@ Discover Dar es Salaam bus stops
 
 This app enables you to calculate the probability of having a bus stop at locations in Dar es Salaam. Different parameters can be tweaked changing the chance of a location being a bus stop.
 
-This is a Python 3.5 app, and it has not been tested on any other veersion of Python.
+This app can run on Python 3.5 and 3.6. It has not been tested with any other version of Python.
+
+A running version of the app can be found at: <https://door2door-assignment.herokuapp.com/>
 
 ## Parameters
 
