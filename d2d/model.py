@@ -62,23 +62,35 @@ class Data(object):
         cls.normalize_speeds = cls._normalize_speeds()
 
     def period(self, *, shift=1, duration=30):
+        """Create a period from timestamps.
+
+        `shift` indicates how many minutes after the timestamp the period
+        start.
+        `duration` the length in minutes of the period.
+        """
         return pd.DatetimeIndex(
             self.points[self.time_column]
         ).shift(shift, freq='T').to_period(freq='{}T'.format(duration))
 
     def points_near_time(self, period, *, data=None):
+        """Find points points in `data` which fall in `period`."""
         if data is None:
             data = self.points
         return data[(period.start_time <= data[self.time_column]) &
                     (data[self.time_column] <= period.end_time)]
 
     def points_near_space(self, geometry, *, decimal=2, data=None):
+        """Find points in `data` near geometry.
+
+        `decimal` is the level of nearness in decimal degrees.
+        """
         if data is None:
             data = self.points
         return data[data.geom_almost_equals(geometry, decimal=decimal)]
 
     @classmethod
     def _distance_to_route(cls):
+        """For every point get the distance to the bus route."""
         result = pd.Series(np.nan, index=cls._points.index)
         for row in cls._routes.itertuples():
             series = cls._points.distance(row.geometry)
@@ -87,6 +99,7 @@ class Data(object):
 
     def count_points_near_space_time(self, *, time_shift=1, time_duration=30,
                                      space_distance=100):
+        """For every point count points near in both space and time."""
         # Create dataframe with period and geometry.
         period = self.period(shift=time_shift, duration=time_duration)
         data = gpd.GeoDataFrame({'period': period,
@@ -103,6 +116,7 @@ class Data(object):
 
     @classmethod
     def json_parsable(cls, data):
+        """Return json parsable data from `data`."""
         crs = data.crs or cls._points.crs
         geo = {'type': 'FeatureCollection',
                'crs': {'type': 'name',
@@ -122,8 +136,10 @@ class Data(object):
 
     @classmethod
     def _normalize_speeds(cls):
-        # Get average speed of in_vehicle not 0
-        # make this 50 km/h.
+        """Get normalized speeds for points."""
+        # Get average speed of in_vehicle not 0 and make this 50 km/h.
+        # Use 50km/h as the source below mentions this as the max speed
+        # in Dar es Salaam.
         # https://www.lonelyplanet.com/tanzania/dar-es-salaam/transportation/dar-rapid-transit/a/poi-tra/1498335/355642
         fifty = cls._points[(cls._points['current_dominating_activity'] ==
                              'in_vehicle')]['speed']
@@ -132,6 +148,8 @@ class Data(object):
         return cls._points['speed'] / fifty * 50
 
     def calc_probability(self, distance, space_time, current_activity, speed):
+        """Using the parameters given calculate the probability of a point
+        being a bus stop."""
         # Create result series.
         probability = pd.Series(0, index=self.points.index)
 
@@ -185,6 +203,7 @@ class Data(object):
         return probability
 
     def analyse(self, **kwargs):
+        """Calculate bus stop probability and add geometry."""
         probability = self.calc_probability(**kwargs)
         return gpd.GeoDataFrame({'probability': probability,
                                  'geometry': self.points.geometry})
