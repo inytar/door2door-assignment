@@ -17,11 +17,27 @@
 
 <body>
   <div id="map" data-bounds="${','.join(str(i) for i in bounds)}"></div>
-  <div id="overlay">
+  <div id="overlayL">
     <nav id="toggleButtons">
       <a id="toggleOriginal" href="#" class="active" data-layer="original-activity">Toggle original data</a>
       <a id="toggleStops" href="#" class="active" data-layer="bus-stops">Toggle bus stops</a>
     </nav>
+    <div id="legend">
+      <h1>Legend</h1>
+      <div>
+        Activity points:
+        <div class="circle"></div>
+      </div>
+      <div>
+        Bus stop probability:
+        <div>50% <div class="probability"></div> 100%</div>
+      </div>
+      <div>
+        Bus routes: <div class="route"></div>
+      </div>
+    </div>
+  </div>
+  <div id="overlayR">
     <form id="analysisForm" method="POST" enctype="application/json">
       <fieldset id="distanceSet" class="">
         <legend>Distance to route</legend>

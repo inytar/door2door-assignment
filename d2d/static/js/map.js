@@ -106,8 +106,9 @@ function loadBusStops(map, data) {
         'circle-color': {
           'property': 'probability',
           'stops': [
-            [30, '#FFFFFF'],
-            [95, '#00FF00'],
+            [50,  'white'],
+            [75, 'lime'],
+            [100, 'green'],
           ],
         },
       },
@@ -118,7 +119,7 @@ function loadBusStops(map, data) {
       },
       'filter':
       // ['all',
-        ['>', 'probability', 33],
+        ['>', 'probability', 50],
       //   ['<=', 'distance_to_route', 0.001],
       //   ['>=', 'near_points_count', 1],
       // ],

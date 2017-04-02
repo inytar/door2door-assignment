@@ -12,22 +12,32 @@ body
 
 #map
 {
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
   width: 100%;
 }
 
-#overlay
+#overlayR
 {
   position: absolute;
   top: 0;
   right: 0;
-  width: 33%;
+  width: 20%;
   z-index: 1;
 }
 
-nav a {
+#overlayL
+{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20%;
+  z-index: 1;
+}
+
+nav a
+{
   display: inline-block;
   padding: 1rem;
   text-decoration: none;
@@ -36,7 +46,42 @@ nav a {
   background-color: #FFFFFF;
   color: #0000FF;
 }
-nav a.active {
+nav a.active
+{
   background-color: #0000FF;
   color: #FFFFFF;
+}
+form label
+{
+  display: block;
+}
+
+#legend
+{
+}
+.circle {
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  background-color: #000000;
+  display: inline-block;
+}
+.probability
+{
+  height: 1rem;
+  width: 50%;
+  display: inline-block;
+  background: linear-gradient(to right, white, lime, green);
+}
+.route
+{
+  height: 2px;
+  width: 50%;
+  display: inline-block;
+  background-color: #FFF000;
+}
+
+#legend h1
+{
+  font-size: 1rem;
 }
