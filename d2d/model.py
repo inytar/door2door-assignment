@@ -58,6 +58,8 @@ class Data(object):
     def load_data(cls):
         cls._points = cls.load_points()
         cls._routes = cls.load_routes()
+        cls.distance_to_route = cls._distance_to_route()
+        cls.normalize_speeds = cls._normalize_speeds()
 
     def period(self, *, shift=1, duration=30):
         return pd.DatetimeIndex(
@@ -75,10 +77,11 @@ class Data(object):
             data = self.points
         return data[data.geom_almost_equals(geometry, decimal=decimal)]
 
-    def distance_to_route(self):
-        result = pd.Series(np.nan, index=self.points.index)
-        for row in self.routes.itertuples():
-            series = self.points.distance(row.geometry)
+    @classmethod
+    def _distance_to_route(cls):
+        result = pd.Series(np.nan, index=cls._points.index)
+        for row in cls._routes.itertuples():
+            series = cls._points.distance(row.geometry)
             result.update(series[result.isnull() | (series < result)])
         return result
 
@@ -117,15 +120,16 @@ class Data(object):
             geo['features'].append(feature)
         return geo
 
-    def normalize_speeds(self):
+    @classmethod
+    def _normalize_speeds(cls):
         # Get average speed of in_vehicle not 0
         # make this 50 km/h.
         # https://www.lonelyplanet.com/tanzania/dar-es-salaam/transportation/dar-rapid-transit/a/poi-tra/1498335/355642
-        fifty = self.points[(self.points['current_dominating_activity'] ==
+        fifty = cls._points[(cls._points['current_dominating_activity'] ==
                              'in_vehicle')]['speed']
         fifty = fifty[fifty > 0].mean()
         # Recalculate all speeds.
-        return self.points['speed'] / fifty * 50
+        return cls._points['speed'] / fifty * 50
 
     def calc_probability(self, distance, space_time, current_activity, speed):
         # Create result series.
@@ -133,36 +137,43 @@ class Data(object):
 
         # Calculate distance points. Distances closer than
         # distance['distance'] get distance['points']
-        probability += (self.distance_to_route() <
-                        to_degrees(distance['distance'])) * \
-            distance['points']
+        if distance['points']:
+            probability += (self.distance_to_route <
+                            to_degrees(distance['distance'])) * \
+                distance['points']
 
         # Calculate space time closeness points. Anything with more than
         # space_time['min_count'] points get space_time['points']
         space_time_count = space_time.pop('min_count')
         space_time_points = space_time.pop('points')
-        probability += (self.count_points_near_space_time(**space_time) >
-                        space_time_count) * space_time_points
+        if space_time_points:
+            probability += (self.count_points_near_space_time(**space_time) >
+                            space_time_count) * space_time_points
 
         # Calculate dominating activity points. Still get activity['still']
         # points times confidence. Not still get -activity['other'] points
-        probability += (self.points['current_dominating_activity'] ==
-                        'still') * \
-            (self.points['current_dominating_activity_confidence'] *
-             current_activity['still_points'])
-        probability += (self.points['current_dominating_activity'] !=
-                        'still') * \
-            (self.points['current_dominating_activity_confidence'] * -1 *
-             current_activity['other_points'])
+        if current_activity['still_points']:
+            probability += (self.points['current_dominating_activity'] ==
+                            'still') * \
+                (self.points['current_dominating_activity_confidence'] *
+                 current_activity['still_points'])
+        if current_activity['other_points']:
+            probability += (self.points['current_dominating_activity'] !=
+                            'still') * \
+                (self.points['current_dominating_activity_confidence'] * -1 *
+                 current_activity['other_points'])
 
         # Look at speed, speed is more than penalty_speed get
         # -penalty_points. If speed is less than max_speed and accuracy is
         # higher than 0 get speed_points.
-        speeds = self.normalize_speeds()
-        probability += (speeds >= speed['penalty_speed']) * -1 * \
-            speed['penalty_points']
-        probability += ((speeds <= speed['max_speed']) &
-                        (self.points['accuracy'] > 0)) * speed['speed_points']
+        speeds = self.normalize_speeds
+        if speed['penalty_points']:
+            probability += (speeds >= speed['penalty_speed']) * -1 * \
+                speed['penalty_points']
+        if speed['speed_points']:
+            probability += ((speeds <= speed['max_speed']) &
+                            (self.points['accuracy'] > 0)) * \
+                speed['speed_points']
 
         # Min probability is 0.
         probability[probability < 0] = 0
