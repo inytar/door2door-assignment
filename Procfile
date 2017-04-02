@@ -1,1 +1,1 @@
-web: run-app -p $PORT
+web: gunicorn d2d.wsgi:app

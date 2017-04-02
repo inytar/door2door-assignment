@@ -2,5 +2,6 @@ geopandas
 morepath
 more.chameleon
 marshmallow
+gunicorn
 git+https://github.com/morepath/more.marshmallow
 -e .
