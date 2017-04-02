@@ -73,7 +73,7 @@ The following instructions will install for development purpose.
 
 Clone the repository:
 
-    $ git clone https://github.com/inytar/door2door_assignment.git
+    $ git clone https://github.com/inytar/door2door-assignment.git
     $ cd door2door_assignment
 
 Create a virtual environment and activate it:
