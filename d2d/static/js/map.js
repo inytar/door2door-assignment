@@ -106,7 +106,7 @@ function loadBusStops(map, data) {
         'circle-color': {
           'property': 'probability',
           'stops': [
-            [50,  'white'],
+            [50,  'lightblue'],
             [75, 'lime'],
             [100, 'green'],
           ],
